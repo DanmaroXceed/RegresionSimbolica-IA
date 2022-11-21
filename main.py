@@ -3,6 +3,7 @@
 #######################################################################
 
 from random import random, randint
+import math
 
 #######################################################################
 ########################   Lectura de datos   #########################
@@ -23,6 +24,8 @@ canMaxFacQ = 3
 canMaxFacPot = 2
 # Lista donde se almacenan las Q
 generacion = []
+# determina si se genero un cociente
+anteriorCociente = False
 
 
 #######################################################################
@@ -38,18 +41,20 @@ def generarnumrandint():
 
 
 def polaridad(i):
-    if generarnumrand() > 0.5:
-        if generarnumrand() < 0.5:
-            if i != 1:
-                return '+'
-        else:
-            return '-'
+    if i == 1:
+        if generarnumrand() > 0.5:
+            if generarnumrand() < 0.5:
+                if i != 1:
+                    return '+'
+            else:
+                return '-'
     return ''
 
 
 def cociente():
     if generarnumrand() < 0.5:
-        return str(generarnumrandint())
+        anteriorCociente = True
+        return str(generarnumrandint()) + '*'
     return ''
 
 
@@ -58,24 +63,24 @@ def addTrigo_X_Y(X, Y):
     aux = ''
 
     if n < 0.2:
-        aux += 'Sin('
+        aux += 'math.sin('
         for j in range(1, canMaxFacPot+1):
             aux += factorTrigo(j,X,Y)
         aux += ')'
     elif n < 0.4:
-        aux += 'Cos('
+        aux += 'math.cos('
         for j in range(1, canMaxFacPot+1):
             aux += factorTrigo(j,X,Y)
         aux += ')'
     elif n < 0.6:
-        aux += 'Tan('
+        aux += 'math.tan('
         for j in range(1, canMaxFacPot+1):
             aux += factorTrigo(j,X,Y)
         aux += ')'
     elif n < 0.8:
-        aux += str(X)
+        aux += '(' + str(X) + ')'
     else:
-        aux += str(Y)
+        aux += '(' + str(Y) + ')'
 
     return aux
 
@@ -90,10 +95,16 @@ def factorTrigo(j,X,Y):
     return aux
 
 def X_Y(X,Y):
-    if generarnumrand() > 0.5:
-        return str(X)
+    if anteriorCociente:
+        if generarnumrand() < 0.5:
+            return '*(' + str(X) + ')'
+        else:
+            return '*(' + str(Y) + ')'
     else:
-        return str(Y)
+        if generarnumrand() < 0.5:
+            return '(' + str(Y) + ')'
+        else:
+            return '(' + str(X) + ')'
 
 
 def siguienteOperador(contador, limite):
@@ -130,6 +141,7 @@ for dato in datos:
 
     # Generar factores
     for i in range(1, canMaxFacQ + 1):
+        Q += '('
         # Polaridad
         Q += polaridad(i)
 
@@ -139,9 +151,17 @@ for dato in datos:
         # Funcion trigonometrica, X o Y
         Q += addTrigo_X_Y(X, Y)
 
+        Q += ')'
+
         # Siguiente operador
         Q += siguienteOperador(i, canMaxFacQ)
 
-    print(Q)
+    print('X:', X, 'Y:', Y, 'R:', R, '\nEcuacion aleatoria:', Q)
+    try:
+        resultado = eval(Q)
+        print('Evaluacion:', resultado)
+    except:
+        print('Evaluacion: Error al evaluar')
+    print()
 
 datos.close()
